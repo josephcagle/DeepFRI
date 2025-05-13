@@ -41,7 +41,8 @@ def load_FASTA(filename):
 
 def load_GO_annot(filename):
     # Load GO annotations
-    onts = ['mf', 'bp', 'cc']
+    # onts = ['mf', 'bp', 'cc']
+    onts = ['mf']
     prot2annot = {}
     goterms = {ont: [] for ont in onts}
     gonames = {ont: [] for ont in onts}
@@ -56,22 +57,26 @@ def load_GO_annot(filename):
 
         # biological process
         next(reader, None)  # skip the headers
-        goterms[onts[1]] = next(reader)
+        # goterms[onts[1]] = next(reader)
+        next(reader)
         next(reader, None)  # skip the headers
-        gonames[onts[1]] = next(reader)
+        # gonames[onts[1]] = next(reader)
+        next(reader)
 
         # cellular component
         next(reader, None)  # skip the headers
-        goterms[onts[2]] = next(reader)
+        # goterms[onts[2]] = next(reader)
+        next(reader)
         next(reader, None)  # skip the headers
-        gonames[onts[2]] = next(reader)
+        # gonames[onts[2]] = next(reader)
+        next(reader)
 
         next(reader, None)  # skip the headers
         counts = {ont: np.zeros(len(goterms[ont]), dtype=float) for ont in onts}
         for row in reader:
             prot, prot_goterms = row[0], row[1:]
             prot2annot[prot] = {ont: [] for ont in onts}
-            for i in range(3):
+            for i in range(len(onts)):
                 goterm_indices = [goterms[onts[i]].index(goterm) for goterm in prot_goterms[i].split(',') if goterm != '']
                 prot2annot[prot][onts[i]] = np.zeros(len(goterms[onts[i]]))
                 prot2annot[prot][onts[i]][goterm_indices] = 1.0

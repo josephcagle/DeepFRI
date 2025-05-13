@@ -1,20 +1,20 @@
 import pandas as pd
 
-# Define root terms to exclude
-terms_to_remove = ['GO:0003674', 'GO:0005488', 'GO:0005515'] # molecular function, binding and protein binding
-# terms_to_remove = set()
+# Define terms to exclude
+terms_to_remove = ['GO:0003674', 'GO:0005488', 'GO:0005515']  # molecular function, binding, protein binding
 
 # Read usable_mf_terms.txt
 with open('../APF/ALPHAFOLDpipeline/usable_mf_terms.txt', 'r') as f:
     mf_terms = sorted(set([line.strip() for line in f]))
 
-# Read train_terms.tsv and filter for MFO
+# Read train_terms.tsv for discrepancy check
 terms_df = pd.read_csv('../APF/Train/train_terms.tsv', sep='\t')
 mf_terms_df = terms_df[(terms_df['aspect'] == 'MFO')]
-pdb_to_mf = mf_terms_df.groupby('EntryID')['term'].apply(set).to_dict()
+pdb_to_mf_tsv = mf_terms_df.groupby('EntryID')['term'].apply(set).to_dict()
 
-# Read usable_{train,val,test}_graphs.tsv to get splits and check discrepancies
+# Read usable_{train,val,test}_graphs.tsv to get splits, MF terms, and check discrepancies
 splits = {'train': [], 'val': [], 'test': []}
+pdb_to_mf = {}
 discrepancies = []
 num_ok = 0
 for split in ['train', 'val', 'test']:
@@ -22,12 +22,16 @@ for split in ['train', 'val', 'test']:
     for _, row in df.iterrows():
         pdb_id = row['pdb_id']
         splits[split].append(pdb_id)
-        # Check for discrepancies
+        # Get MF terms from label
         label = [int(x) for x in row['label'].split()]
-        expected_terms = set(pdb_to_mf.get(pdb_id, set()))
+        mf_terms_set = set(term for i, term in enumerate(mf_terms) if label[i] == 1 and term not in terms_to_remove)
+        pdb_to_mf[pdb_id] = mf_terms_set
+        # Reverse discrepancy check: label is ground truth
+        tsv_terms = set(pdb_to_mf_tsv.get(pdb_id, set()))
         for i, term in enumerate(mf_terms):
-            if (term in expected_terms and label[i] == 0) or (term not in expected_terms and label[i] == 1):
-                discrepancies.append(f"Discrepancy in {split} for {pdb_id}: {term} (index={i}, label={label[i]}, terms.tsv={term in expected_terms})")
+            if (term in mf_terms_set and term not in tsv_terms) or (term not in mf_terms_set and term in tsv_terms):
+                # discrepancies.append(f"Discrepancy in {split} for {pdb_id}: {term} (index={i}, label={term in mf_terms_set}, terms.tsv={term in tsv_terms})")
+                discrepancies.append((f"Discrepancy in {split} for {pdb_id}: {term}", {"index": i, "label": term in mf_terms_set, "terms.tsv": term in tsv_terms}))
             else:
                 num_ok += 1
 
@@ -55,8 +59,14 @@ with open('./preprocessing/data2/alphafold_annot.tsv', 'w') as f:
 # Print discrepancies
 if discrepancies:
     print("Discrepancies found:")
-    for d in discrepancies:
-        print(d)
+    if all([d['terms.tsv'] for s, d in discrepancies]):
+        print("All discrepancies have a term in terms.tsv but not in the label. (Fine!)")
+    elif all([not d['terms.tsv'] for s, d in discrepancies]):
+        print("All discrepancies have a term in the label but not in terms.tsv.")
+    else:
+        print("Discrepancies have a term in both terms.tsv and the label.")
+        for d in discrepancies:
+            print(d[0], d[1])
     print(f"Number of correct labels: {num_ok}")
     print(f"Number of discrepancies: {len(discrepancies)}")
 else:

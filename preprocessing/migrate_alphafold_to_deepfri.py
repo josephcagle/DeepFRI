@@ -1,18 +1,16 @@
 import pandas as pd
 
 # Define root terms to exclude
-# root_terms = {'GO:0008150', 'GO:0003674', 'GO:0005575'}
-root_terms = set()
-# terms_to_remove = ['GO:0003674', 'GO:0005488', 'GO:0005515'] # molecular function, binding and protein binding
-terms_to_remove = set()
+terms_to_remove = ['GO:0003674', 'GO:0005488', 'GO:0005515'] # molecular function, binding and protein binding
+# terms_to_remove = set()
 
 # Read usable_mf_terms.txt
 with open('../APF/ALPHAFOLDpipeline/usable_mf_terms.txt', 'r') as f:
-    mf_terms = [line.strip() for line in f if line.strip() not in root_terms and line.strip() not in terms_to_remove]
+    mf_terms = sorted(set([line.strip() for line in f]))
 
 # Read train_terms.tsv and filter for MFO
 terms_df = pd.read_csv('../APF/Train/train_terms.tsv', sep='\t')
-mf_terms_df = terms_df[(terms_df['aspect'] == 'MFO') & (~terms_df['term'].isin(root_terms)) & (~terms_df['term'].isin(terms_to_remove))]
+mf_terms_df = terms_df[(terms_df['aspect'] == 'MFO')]
 pdb_to_mf = mf_terms_df.groupby('EntryID')['term'].apply(set).to_dict()
 
 # Read usable_{train,val,test}_graphs.tsv to get splits and check discrepancies
@@ -42,16 +40,16 @@ for split in ['train', 'val', 'test']:
 # Write alphafold_annot.tsv
 with open('./preprocessing/data2/alphafold_annot.tsv', 'w') as f:
     f.write("### GO-terms (molecular_function)\n")
-    f.write('\t'.join(mf_terms) + '\n')
+    f.write('\t'.join([term for term in mf_terms if term not in terms_to_remove]) + '\n')
     f.write("### GO-names (molecular_function)\n\n")
     f.write("### GO-terms (biological_process)\n\n")
     f.write("### GO-names (biological_process)\n\n")
     f.write("### GO-terms (cellular_component)\n\n")
     f.write("### GO-names (cellular_component)\n\n")
     f.write("### PDB-chain\tGO-terms (molecular_function)\tGO-terms (biological_process)\tGO-terms (cellular_component)\n")
-    for pdb_id in set(splits['train'] + splits['val'] + splits['test']):
+    for pdb_id in sorted(set(splits['train'] + splits['val'] + splits['test'])):
         mf_terms_set = pdb_to_mf.get(pdb_id, set())
-        mf_terms_str = ','.join(sorted(mf_terms_set)) if mf_terms_set else ''
+        mf_terms_str = ','.join(sorted([term for term in mf_terms_set if term not in terms_to_remove])) if mf_terms_set else ''
         f.write(f"{pdb_id}-A\t{mf_terms_str}\t\t\n")
 
 # Print discrepancies

@@ -1,7 +1,7 @@
 #!/bin/bash
 
-DATA_DIR=./data/
-TFR_DIR=/mnt/ceph/users/vgligorijevic/ContactMaps/TFRecords/
+DATA_DIR=./data2/
+TFR_DIR=./data2/TFRecords/
 SEQ_SIM=95
 
 mkdir $DATA_DIR

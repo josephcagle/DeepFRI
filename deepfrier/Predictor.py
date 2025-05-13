@@ -181,7 +181,8 @@ class Predictor(object):
         self.prot2goterms = {}
         self.data = {}
 
-        for i, chain in enumerate(self.test_prot_list):
+        from tqdm import tqdm
+        for i, chain in enumerate(tqdm(self.test_prot_list, total=len(self.test_prot_list), smoothing=0)):
             S = seq2onehot(str(sequences[i]))
             S = S.reshape(1, *S.shape)
             y = self.model(S, training=False).numpy()[:, :, 0].reshape(-1)

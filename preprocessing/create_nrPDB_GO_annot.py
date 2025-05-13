@@ -238,11 +238,11 @@ def write_output_files(fname, pdb2go, go2info, pdb2seq):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(formatter_class=argparse.ArgumentDefaultsHelpFormatter)
-    parser.add_argument('-sifts', type=str, default='./data/pdb_chain_go_2019.06.18.tsv.gz', help="SIFTS annotation files.")
-    parser.add_argument('-bc', type=str, default='./data/bc-95.out', help="Blastclust of PDB chains.")
-    parser.add_argument('-seqres', type=str, default='./data/pdb_seqres.txt.gz', help="PDB chain seqres fasta.")
-    parser.add_argument('-obo', type=str, default='./data/go-basic.obo', help="Gene Ontology hierarchy.")
-    parser.add_argument('-out', type=str, default='./data/nrPDB-GO_2019.06.18', help="Output filename prefix.")
+    parser.add_argument('-sifts', type=str, default='./data2/pdb_chain_go_2019.06.18.tsv.gz', help="SIFTS annotation files.")
+    parser.add_argument('-bc', type=str, default='./data2/bc-95.out', help="Blastclust of PDB chains.")
+    parser.add_argument('-seqres', type=str, default='./data2/pdb_seqres.txt.gz', help="PDB chain seqres fasta.")
+    parser.add_argument('-obo', type=str, default='./data2/go-basic.obo', help="Gene Ontology hierarchy.")
+    parser.add_argument('-out', type=str, default='./data2/nrPDB-GO_2019.06.18', help="Output filename prefix.")
     args = parser.parse_args()
 
     annoted_chains = load_pdbs(args.sifts)

@@ -1,0 +1,16 @@
+### GO-terms (molecular_function)
+GO:0016681	GO:0005126	GO:0008134	GO:0016168	GO:0045182	GO:0004532	GO:0003918	GO:0003755	GO:0004540
+### GO-names (molecular_function)
+oxidoreductase activity, acting on diphenols and related substances as donors, cytochrome as acceptor	cytokine receptor binding	transcription factor binding	chlorophyll binding	translation regulator activity	exoribonuclease activity	DNA topoisomerase type II (double strand cut, ATP-hydrolyzing) activity	peptidyl-prolyl cis-trans isomerase activity	ribonuclease activity
+### GO-terms (biological_process)
+...
+### GO-names (biological_process)
+...
+### GO-terms (cellular_component)
+...
+### GO-names (cellular_component)
+...
+### PDB-chain	GO-terms (molecular_function)	GO-terms (biological_process)	GO-terms (cellular_component)
+19HC-A	GO:0009055,GO:0046906,GO:0020037	GO:0006091,GO:0022900	GO:0042597
+1A0P-A	GO:0140097,GO:0003677	GO:0007059,GO:0051301,GO:0009628,GO:0015074,GO:0007049,GO:0006310,GO:0009314,GO:0006259	GO:1905348,GO:1902494
+1A9O-A	GO:0016757,GO:0016763	GO:1901135,GO:1901657,GO:0055086,GO:0009116	GO:0005856,GO:0043228,GO:0043232

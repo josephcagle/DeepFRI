@@ -139,15 +139,18 @@ class DeepFRI(object):
         es = tf.keras.callbacks.EarlyStopping(monitor='val_loss', mode='min', verbose=1, patience=5)
 
         # model checkpoint
-        mc = tf.keras.callbacks.ModelCheckpoint(self.model_name_prefix + '_best_train_model.h5', monitor='val_loss', mode='min', verbose=1,
+        mc = tf.keras.callbacks.ModelCheckpoint(self.model_name_prefix + '_best_train_model.weights.h5', monitor='val_loss', mode='min', verbose=1,
                                                 save_best_only=True, save_weights_only=True)
 
+        import math
         # fit model
         history = self.model.fit(batch_train,
                                  epochs=epochs,
                                  validation_data=batch_valid,
                                  steps_per_epoch=n_train_records//batch_size,
+                                #  steps_per_epoch=math.ceil(100//batch_size),
                                  validation_steps=n_valid_records//batch_size,
+                                #  validation_steps=math.ceil(100//batch_size),
                                  class_weight=class_weight,
                                  callbacks=[es, mc])
 

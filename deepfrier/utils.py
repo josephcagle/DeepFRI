@@ -222,6 +222,8 @@ def get_batched_dataset(filenames, batch_size=64, pad_len=1000, n_goterms=347, c
     dataset = tf.data.TFRecordDataset(filenames, num_parallel_reads=AUTO)
     dataset = dataset.with_options(ignore_order)
 
+    # dataset = dataset.take(100)
+
     # Parse the serialized data in the TFRecords files.
     if gcn:
         dataset = dataset.map(lambda x: _parse_function_gcn(x, n_goterms=n_goterms, channels=channels, cmap_type=cmap_type, cmap_thresh=cmap_thresh, ont=ont))

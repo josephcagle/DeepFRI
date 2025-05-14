@@ -151,13 +151,14 @@ class GenerateTFRecord(object):
         tfrecord_fn = self.tfrecord_fn + '_%0.2d-of-%0.2d.tfrecords' % (idx, self.num_shards)
         # writer = tf.python_io.TFRecordWriter(tfrecord_fn)
         writer = tf.io.TFRecordWriter(tfrecord_fn)
-        print ("### Serializing %d examples into %s" % (len(self.prot_list), tfrecord_fn))
+        # print ("### Serializing %d examples into %s" % (len(self.prot_list), tfrecord_fn))
 
         tmp_prot_list = self.prot_list[self.indices[idx][0]:self.indices[idx][1]]
 
         for i, prot in enumerate(tmp_prot_list):
             if i % 500 == 0:
-                print ("### Iter = %d/%d" % (i, len(tmp_prot_list)))
+                # print ("### Iter = %d/%d" % (i, len(tmp_prot_list)))
+                pass
             pdb_file = self.npz_dir + '/' + prot + '.npz'
             if os.path.isfile(pdb_file):
                 cmap = np.load(pdb_file)
@@ -168,26 +169,31 @@ class GenerateTFRecord(object):
                 example = self._serialize_example(prot, sequence, ca_dist_matrix, cb_dist_matrix)
                 writer.write(example)
             else:
-                print (pdb_file)
-        print ("Writing {} done!".format(tfrecord_fn))
+                # print (pdb_file)
+                pass
+        # print ("Writing {} done!".format(tfrecord_fn))
 
     def run(self, num_threads):
-        pool = multiprocessing.Pool(processes=num_threads)
+        # pool = multiprocessing.Pool(processes=num_threads)
+        import sys
+        sys.path.append('.')
+        from parallelize import pqdm_map
         shards = [idx for idx in range(0, self.num_shards)]
-        pool.map(self._convert_numpy_folder, shards)
+        # pool.map(self._convert_numpy_folder, shards)
+        pqdm_map(self._convert_numpy_folder, shards, n_jobs=num_threads)
 
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(formatter_class=argparse.ArgumentDefaultsHelpFormatter)
-    parser.add_argument('-annot', type=str, default='./data/nrPDB-GO_2020.06.18_annot.tsv', help="Input file (*.tsv) with preprocessed annotations.")
+    parser.add_argument('-annot', type=str, default='./preprocessing/data2/alphafold_annot.tsv', help="Input file (*.tsv) with preprocessed annotations.")
     parser.add_argument('-ec', help="Use EC annotations.", action="store_true")
-    parser.add_argument('-prot_list', type=str, default='./data/nrPDB-GO_2019.06.18_train.txt',
+    parser.add_argument('-prot_list', type=str, default='./preprocessing/data2/alphafold_train.txt',
                         help="Input file (*.txt) with a set of protein IDs with distMAps in npz_dir.")
-    parser.add_argument('-npz_dir', type=str, default='./data/annot_pdb_chains_npz/',
+    parser.add_argument('-npz_dir', type=str, default='./preprocessing/data2/annot_pdb_chains_npz/',
                         help="Directory with distance maps saved in *.npz format to be loaded.")
     parser.add_argument('-num_threads', type=int, default=20, help="Number of threads (CPUs) to use in the computation.")
     parser.add_argument('-num_shards', type=int, default=20, help="Number of tfrecord files per protein set.")
-    parser.add_argument('-tfr_prefix', type=str, default='/mnt/ceph/users/vgligorijevic/ContactMaps/TFRecords/PDB_GO_train',
+    parser.add_argument('-tfr_prefix', type=str, default='./preprocessing/data2/TFRecords/PDB_GO_train',
                         help="Directory with tfrecord files for model training.")
     args = parser.parse_args()
 

@@ -17,7 +17,10 @@ results
 
 # models
 trained_models/*
+trained_models__gpu/*
 newest_trained/*
 alphafold2
 
 venv
+*.npz
+*.tfrecords

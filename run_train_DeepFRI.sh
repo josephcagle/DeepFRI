@@ -9,8 +9,8 @@ fully_connected_dims="1024"
 graph_conv_layer=GraphConv
 ontology=mf
 cmap_thresh=10.0
-data_dir=data2/
-cmap_data=PDB # possible: PDB, SWISS-MODEL or MERGED
+data_dir=preprocessing/data2/
+cmap_data=alphafold # possible: PDB, SWISS-MODEL or MERGED
 model_name=./results/DeepFRI-${cmap_data}_${graph_conv_layer}_gcd_$(echo $graph_conv_dims | tr ' ' '-')_fcd_${fully_connected_dims}_ca_${cmap_thresh}_${ontology}
 
 if [ "$ontology" == ec ]; then
@@ -35,12 +35,19 @@ python train_DeepFRI.py \
     -lr 0.0002 \
     -gc ${graph_conv_layer} \
     -e 50 \
+    --batch_size 32 \
     -ont ${ontology} \
-    -lm trained_models/lstm_lm.hdf5 \
+    -lm trained_models/lstm_lm_tf.hdf5 \
     --cmap_type ca \
     --cmap_thresh ${cmap_thresh} \
-    --train_tfrecord_fn ${data_dir}${cmap_data}_${annot}_train \
-    --valid_tfrecord_fn ${data_dir}${cmap_data}_${annot}_valid \
+    --train_tfrecord_fn ${data_dir}TFRecords/ \
+    --valid_tfrecord_fn ${data_dir}TFRecords/ \
     --annot_fn ${annot_fn} \
     --test_list ${test_list} \
     --model_name ${model_name} \
+
+    # --train_tfrecord_fn ${data_dir}${cmap_data}_${annot}_train \
+    # --valid_tfrecord_fn ${data_dir}${cmap_data}_${annot}_valid \
+
+    # --train_tfrecord_fn ${data_dir}${cmap_data}_train \
+    # --valid_tfrecord_fn ${data_dir}${cmap_data}_valid \
